@@ -45,17 +45,17 @@ const allEmployeeQuestions = [
 const specialQuestions = [
     {
         type: "input",
-        name: "manager",
+        name: "office",
         message: "What is the Manager's office number?"
     },
     {
         type: "input",
-        name: "engineer",
+        name: "github",
         message: "What is the Engoineer's Github username?"
     },
     {
         type: "input",
-        name: "intern",
+        name: "school",
         message: "What is the Intern's school?"
     }
 ]
@@ -74,8 +74,11 @@ function userPrompt() {
             let email = response.email;
             if (response.type == "Manager") {
                 inquirer.prompt(managerQuestion).then(response => {
-                    let office = response.manager.value;
-                    let employee = new Manager(name, id, email, office);
+                    console.log(name, id, email);
+                    let office = response.office;
+                    console.log(office);
+                    let employee = new Employee(name, id, email);
+                    employee = new Manager(office);
                     employees.push(employee);
                     addPrompt();
                 })
