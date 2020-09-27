@@ -10,90 +10,119 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 const Employee = require("./lib/Employee");
+const { type } = require("os");
 
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
-function typePrompt() {
-    inquirer
-        .prompt([
+employees = [];
 
-            {
-                type: "list",
-                choices: ["Manager", "Engineer", "Intern"],
-                name: "employee-type",
-                message: "What type of employee are you adding to your team?"
-            }
-        ])
-        .then(response => {
-            if (reesponse.choices == "Manager") {
-                employeeQuestions();
-                managerQuestions();
-            }
-            if (response.choices == "")
-    })
-}
+const allEmployeeQuestions = [
+    {
+        type: "list",
+        choices: ["Manager", "Engineer", "Intern"],
+        name: "type",
+        message: "What type of employee are you adding to your team?"
+    },
+    {
+        type: "input",
+        name: "name",
+        message: "Enter the employee's name."
+    },
+    {
+        type: "input",
+        name: "id",
+        message: "Enter the employee's ID number."
+    },
+    {
+        type: "input",
+        name: "email",
+        message: "Enter the employee's email address."
+    }
+]
 
-function employeeQuestions() {
+const specialQuestions = [
+    {
+        type: "input",
+        name: "manager",
+        message: "What is the Manager's office number?"
+    },
+    {
+        type: "input",
+        name: "engineer",
+        message: "What is the Engoineer's Github username?"
+    },
+    {
+        type: "input",
+        name: "intern",
+        message: "What is the Intern's school?"
+    }
+]
+
+function userPrompt() {
+
+    const managerQuestion = specialQuestions[0];
+    const engineerQuestion = specialQuestions[1];
+    const internQuestion = specialQuestions[2];
+
     inquirer
-        .prompt([
-            {
-                type: "input",
-                name: "name",
-                message: "Enter the employee's name."
-            }
-        {
-                type: "input",
-                name: "id",
-                message: "Enter the employee's ID number."
-            }
-        {
-                type: "input",
-                name: "email",
-                message: "Enter the employee's email address."
-            }
-        ])
+        .prompt(allEmployeeQuestions)
         .then(response => {
-            new Employee(response.name, response.id, response.email);
+            let name = response.name;
+            let id = response.id;
+            let email = response.email;
+            if (response.type == "Manager") {
+                inquirer.prompt(managerQuestion).then(response => {
+                    let office = response.manager.value;
+                    let employee = new Manager(name, id, email, office);
+                    employees.push(employee);
+                    addPrompt();
+                })
+            }
+            if (response.type == "Engineer") {
+                inquirer.prompt(engineerQuestion).then(response => {
+                    let github = response.engineer.value;
+                    let employee = new Engineer(name, id, email, github);
+                    employees.push(employee);
+                    addPrompt();
+                })
+            }
+            if (response.type == "Intern") {
+                inquirer.prompt(internQuestion).then(response => {
+                    let school = response.school.value;
+                    let employee = new Intern(name, id, email, school);
+                    employees.push(employee);
+                    addPrompt();
+                })
+            }
         })
 }
 
-function managerQuestions() {
+function addPrompt() {
     inquirer
         .prompt([
             {
-                type: "input",
-                name: "office-number",
-                message: "What is the Manager's office number?"
+                type: "confirm",
+                name: "choice",
+                message: "Add another emplopyee?"
             }
         ])
-}
-
-function engineerQuestions() {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                name: "github-username",
-                message: "What is the Engoineer's Github username?"
+        .then(response => {
+            if (response.choice) {
+                userPrompt();
             }
-        ])
-}
-
-function internQuestions() {
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                name: "school",
-                message: "What is the Intern's school?"
+            else {
+                render(employees)
             }
+        })
 }
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
+
+userPrompt(); // NOTE - render function within userPrompt()
 
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
