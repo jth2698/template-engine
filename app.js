@@ -5,7 +5,7 @@ const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
 
-const OUTPUT_DIR = path.resolve(__dirname, "output");
+const OUTPUT_DIR = path.resolve("./", "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
@@ -74,18 +74,15 @@ function userPrompt() {
             let email = response.email;
             if (response.type == "Manager") {
                 inquirer.prompt(managerQuestion).then(response => {
-                    console.log(name, id, email);
                     let office = response.office;
-                    console.log(office);
-                    let employee = new Employee(name, id, email);
-                    employee = new Manager(office);
+                    let employee = new Manager(name, id, email, office);
                     employees.push(employee);
                     addPrompt();
                 })
             }
             if (response.type == "Engineer") {
                 inquirer.prompt(engineerQuestion).then(response => {
-                    let github = response.engineer.value;
+                    let github = response.github;
                     let employee = new Engineer(name, id, email, github);
                     employees.push(employee);
                     addPrompt();
@@ -93,7 +90,7 @@ function userPrompt() {
             }
             if (response.type == "Intern") {
                 inquirer.prompt(internQuestion).then(response => {
-                    let school = response.school.value;
+                    let school = response.school;
                     let employee = new Intern(name, id, email, school);
                     employees.push(employee);
                     addPrompt();
@@ -108,7 +105,7 @@ function addPrompt() {
             {
                 type: "confirm",
                 name: "choice",
-                message: "Add another emplopyee?"
+                message: "Add another employee?"
             }
         ])
         .then(response => {
@@ -116,7 +113,14 @@ function addPrompt() {
                 userPrompt();
             }
             else {
-                render(employees)
+                const htmlFile = render(employees);
+                console.log(employees);
+                console.log(employees[0].getRole())
+                console.log(htmlFile);
+                fs.writeFile(outputPath, htmlFile, (err) => {
+                    if (err) throw err;
+                    console.log("The html file has been saved in ./output");
+                });
             }
         })
 }
