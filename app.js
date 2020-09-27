@@ -13,11 +13,11 @@ const Employee = require("./lib/Employee");
 const { type } = require("os");
 
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
 
+// Create empty array to hold all employee objects
 employees = [];
 
+// Create constrant for questions that will be asked for all employees
 const allEmployeeQuestions = [
     {
         type: "list",
@@ -42,6 +42,7 @@ const allEmployeeQuestions = [
     }
 ]
 
+// Create separate variable for special questions that will be asked depending on employee type 
 const specialQuestions = [
     {
         type: "input",
@@ -60,6 +61,7 @@ const specialQuestions = [
     }
 ]
 
+// Create function to handle the user prompt questions
 function userPrompt() {
 
     const managerQuestion = specialQuestions[0];
@@ -72,11 +74,17 @@ function userPrompt() {
             let name = response.name;
             let id = response.id;
             let email = response.email;
+
+            // Three if statements to handle employee type
             if (response.type == "Manager") {
+                //applicable question from specialQuestions array to be asked to get final data point
                 inquirer.prompt(managerQuestion).then(response => {
                     let office = response.office;
+                    // Once all data has been passed through inquirer, generate applicable object
                     let employee = new Manager(name, id, email, office);
+                    // Push object to employees array
                     employees.push(employee);
+                    // Call function to ask whether there are additional employees to add (see below)
                     addPrompt();
                 })
             }
@@ -101,6 +109,7 @@ function userPrompt() {
 
 function addPrompt() {
     inquirer
+        // Use inquirer confirm feature to ask whether additional employees should be added
         .prompt([
             {
                 type: "confirm",
@@ -110,39 +119,22 @@ function addPrompt() {
         ])
         .then(response => {
             if (response.choice) {
+                // If "yes", call userPrompt function again (results in another push to the employees array)
                 userPrompt();
             }
             else {
+                // If "no", render the HTML file
                 const htmlFile = render(employees);
-                console.log(employees);
-                console.log(employees[0].getRole())
-                console.log(htmlFile);
+                // Write HTML file to the new output directory
                 fs.writeFile(outputPath, htmlFile, (err) => {
+                    // If there is an error in the writeFile function, this throws the error
                     if (err) throw err;
+                    // Otherwise, console.log to the use that the HTML file has been saved in the output directory
                     console.log("The html file has been saved in ./output");
                 });
             }
         })
 }
 
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-
-userPrompt(); // NOTE - render function within userPrompt()
-
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
-
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+// Call userPrompt to start the process outlined above
+userPrompt();
