@@ -17,7 +17,7 @@ const { type } = require("os");
 // Create empty array to hold all employee objects
 employees = [];
 
-// Create constrant for questions that will be asked for all employees
+// Create variable for questions that will be asked for all employees
 const allEmployeeQuestions = [
     {
         type: "list",
@@ -113,17 +113,17 @@ function addPrompt() {
         .prompt([
             {
                 type: "confirm",
-                name: "choice",
+                name: "add",
                 message: "Add another employee?"
             }
         ])
         .then(response => {
-            if (response.choice) {
-                // If "yes", call userPrompt function again (results in another push to the employees array)
+            if (response.add) {
+                // If true, call userPrompt function again (results in another prompt and push to the employees array)
                 userPrompt();
             }
             else {
-                // If "no", render the HTML file
+                // If false, render the HTML file
                 const htmlFile = render(employees);
                 // Write HTML file to the new output directory
                 fs.writeFile(outputPath, htmlFile, (err) => {
